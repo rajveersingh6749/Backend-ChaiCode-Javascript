@@ -1,0 +1,21 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "learn how to connect frontend and backendand Proxy and CORS",
+  "keywords": [
+    "frontend",
+    "backend",
+    "proxy",
+    "cors"
+  ],
+  "license": "ISC",
+  "author": "Rajveer Singh",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
