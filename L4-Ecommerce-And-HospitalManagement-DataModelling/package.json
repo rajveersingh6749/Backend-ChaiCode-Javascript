@@ -1,0 +1,20 @@
+{
+  "name": "l4-ecommerce-and-hospitalmanagement-datamodelling",
+  "version": "1.0.0",
+  "description": "ecommerce and hospital management data modelling",
+  "keywords": [
+    "data",
+    "modelling"
+  ],
+  "license": "ISC",
+  "author": "Rajveer Singh",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongoose": "^8.17.1"
+  }
+}
