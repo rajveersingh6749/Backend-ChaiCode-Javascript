@@ -53,7 +53,7 @@ userSchema.pre("save", async function (next) {
   // read it form mongoose->middleware->pre hook. We used function definition here because arrow function have the access of this keyword and here we need to have access of user's fields to manipulate them or hash the password.
   if (!this.isModified("password")) return next();
 
-  this.password = bcrypt.hash(this.password, 10);
+  this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
