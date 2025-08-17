@@ -4,6 +4,24 @@ import { User } from '../models/user.model.js'
 import { uploadOnCloudinary } from '../utils/cloudinary.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 
+
+const gererateAccessAndResfreshTokens = async (userId) => {
+    try {
+        const user = User.findById(userId)
+
+        const accessToken = user.generateAccessToken()
+        const refreshToken = user.generateRefreshToken()
+
+        user.refreshToken = refreshToken
+        await user.save({ validateBeforeSave: false }) // saving refreshToken in database
+
+        return {refreshToken, accessToken}
+
+    } catch (error) {
+        throw new ApiError(500, "Something went wrong while generating access and refresh tokens")
+    }
+}
+
 const registerUser = asyncHandler( async (req, res) => {
     // res.status(200).json({
     //     messege: "Chai Aur Code"
@@ -82,5 +100,92 @@ const registerUser = asyncHandler( async (req, res) => {
     )
 })
 
+const loginUser = asyncHandler( async (req, res) => {
+    // req.body -> data
+    // username or email
+    // find the user
+    // password check
+    // access and refresh token
+    // send cookie
 
-export { registerUser }
+    const {email, username, password} = req.body
+
+    if(!email || !username){
+        throw new ApiError(400, "username or email is required")
+    }
+
+    const user = User.findOne({
+        $or: [{username}, {email}]
+    })
+
+    if(!user) {
+        throw new ApiError(404, "User does not exist")
+    }
+
+    const isPasswordValid = user.isPasswordCorrect(password)
+
+    if(!isPasswordValid) {
+        throw new ApiError(404, "Invalid user credentials")
+    }
+
+    const {accessToken, refreshToken} = await gererateAccessAndResfreshTokens(user._id)
+
+    // now we need to set cookie.
+    // first of all notice one thing is that when we find 'user' so we got lots of things(check user.model) with it but above 'user' does not have refresh token because we just generate them not above so now we have 2 options either make database call or take a refrence of it here
+    // i choose database call but it depends wheater it isn't expensive or not
+
+    const loggedInUser = await User.findById(user._id).select(
+        "-password -refreshToken"
+    )
+
+    // now we need to send cookies
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+
+    return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+        new ApiResponse(
+            200,
+            {
+                user: loggedInUser, accessToken, refreshToken
+            },
+            "User loggIn Successfully"
+        )
+    )
+})
+
+const logoutUser = asyncHandler( async (req, res) => {
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: {
+                refreshToken: undefined
+            }
+        },
+        {
+            new: true
+        }
+    )
+
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+
+    return res
+    .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(200, {}, "User logged out"))
+})
+
+export { 
+    registerUser,
+    loginUser,
+    logoutUser
+}
