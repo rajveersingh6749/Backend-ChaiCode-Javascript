@@ -22,7 +22,8 @@ const registerUser = asyncHandler( async (req, res) => {
     // if yes then return response
 
     const {fullName, email, username, password} = req.body // to test from postman go to body->raw and then json and write {"email":"", "password":""}
-    console.log("email: ", email) // for testing from 'postman'
+    // console.log("Testing email through Postman!: ", email) // for testing from 'postman'
+    // console.log("This is how req.body looks like!: ", req.body)
 
     if(
         [fullName, email, username, password].some((field) => field?.trim() === "") // it is an advanced code of 'if' to check validation of all the fields
@@ -30,7 +31,7 @@ const registerUser = asyncHandler( async (req, res) => {
         throw new ApiError(400, "All fields are required")
     }
 
-    const existedUser = User.findOne({ // User can directly talk to database so here it is asking database if username or email already existed
+    const existedUser = await User.findOne({ // User can directly talk to database so here it is asking database if username or email already existed
         $or: [{ username }, { email }]
     })
 
@@ -38,9 +39,14 @@ const registerUser = asyncHandler( async (req, res) => {
         throw new ApiError(409,"User with email or username already exists")
     }
 
+    // console.log("This is how req.files look like!: ", req.files)
     const avatarLocalPath = req.files?.avatar[0]?.path
-    // console.log(req.files)
-    const coverImageLocalPath = req.files?.coverImage[0]?.path
+    // const coverImageLocalPath = req.files?.coverImage[0]?.path
+
+    let coverImageLocalPath;
+    if(req.files && Array.isArray(req.files.coverImage) &&  req.files.coverImage.length > 0) {
+        coverImageLocalPath = req.files.coverImage[0].path;
+    }
 
     if(!avatarLocalPath){
         throw new ApiError(400, "Avatar file is required")
@@ -54,15 +60,15 @@ const registerUser = asyncHandler( async (req, res) => {
     }
 
     const user = await User.create({
-        username,
-        avatar: avatar.url,
-        coverImage: coverImage?.url || "",
+        fullName,
+        username: username.toLowerCase(),
         email,
         password,
-        username: username.toLowerCase()
+        avatar: avatar.url,
+        coverImage: coverImage?.url || ""
     })
 
-    const createdUser = await User.findById(user_id).select(
+    const createdUser = await User.findById(user._id).select(
         "-password -refreshToken"
     )
 
