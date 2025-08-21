@@ -50,7 +50,11 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.pre("save", async function (next) {
-  // read it form mongoose->middleware->pre hook. We used function definition here because arrow function have the access of this keyword and here we need to have access of user's fields to manipulate them or hash the password.
+  // read it from mongoosejs->middleware->pre hook. 
+  // We used function definition here because arrow function 
+  // doesn't have the access of 'this' keyword and 
+  // here we need to have access of user's fields 
+  // to manipulate them or hash the password.
   if (!this.isModified("password")) return next();
 
   this.password = await bcrypt.hash(this.password, 10);
