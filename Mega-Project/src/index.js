@@ -39,7 +39,7 @@ connectDB()
 ;( async () => {
     try {
         await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`)
-        app.on("errror", (error) => {
+        app.on("error", (error) => {
             console.error("ERR: ", error)
             throw error
         })
@@ -49,7 +49,7 @@ connectDB()
         })
     } catch (error) {
         console.error("ERROR: ", error)
-        throw err
+        throw error
     }
 })()
 
