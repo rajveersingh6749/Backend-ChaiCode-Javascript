@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const userSchema = new mongoose.Schema(
+const userSchema = new Schema(
   {
     username: {
       type: String,
@@ -62,7 +62,7 @@ userSchema.pre("save", async function (next) {
 });
 
 // writting a custom method called 'isPasswordCorrect'
-// Note: Here, methods is an object
+// Note: Here, 'methods' is an object
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
