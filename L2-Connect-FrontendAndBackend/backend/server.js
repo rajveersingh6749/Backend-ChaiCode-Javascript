@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
 })
 
 // generate a list of five jokes form ChatGpt
-app.get('/api/jokes', (req, res) => {
+app.get('/jokes', (req, res) => {
     const jokes = [
         {
           id: 1,

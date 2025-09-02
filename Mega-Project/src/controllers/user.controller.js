@@ -144,8 +144,16 @@ const loginUser = asyncHandler(async (req, res) => {
   );
 
   // now we need to set cookie.
-  // first of all notice one thing is that when we find 'user' so we got lots of things(check user.model) with it but above 'user' does not have refresh token because we just generate them not above so now we have 2 options either make database call or take a refrence of it here
-  // i choose database call but it depends wheater it isn't expensive or not
+  
+  // first of all notice one thing when 
+  // we find 'user' so we got lots of 
+  // things(check user.model) with it but above 
+  // 'user' does not have refresh token because 
+  // we just generate them not above so now
+  //  we have 2 options either make database
+  //  call or take a refrence of it here
+  // i choose database call but it depends whether
+  //  it is expensive or not
 
   const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
